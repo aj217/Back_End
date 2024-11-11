@@ -1,23 +1,28 @@
+require('dotenv').configure;
 const express = require('express');
 const { MongoClient } = require('mongodb');
+
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 5000;
 
-app.use(express.json()); // For parsing JSON data in requests
-
+const client = new MongoClient (Process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 let db;
 
 async function connectDB() {
-    const client = new MongoClient('your-mongodb-atlas-connection-string');
-    await client.connect();
-    db = client.db('schoolApp'); 
+    try {
+        await client.connect();
+        db = client.db('mongodb://localhost');
+        console.log('Connected to MongoDB');
+    } catch (err) {
+        console.error('Failed to connect to MongoDB', error);
+        process.exit(1);
+}
 }
 
-app.get('/', (req, res) => {
-    res.send('Backend is running');
-});
+connectDB();
 
-connectDB().then(() => {
-    console.log("Connected to MongoDB Atlas");
-    app.listen(port, () => console.log(`Server running on port ${port}`));
-}).catch(error => console.error("Connection failed", error));
+app.use(express.json());
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
