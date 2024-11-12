@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const { MongoClient } = require('mongodb');
+const apiRouter = require('./router');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,6 +21,8 @@ async function connectDB() {
     try {
         await client.connect();
         db = client.db();
+          // Mount the API router after connecting to the database
+          app.use('/api', apiRouter(db)); // Pass the db instance to the router here
         console.log('Connected to MongoDB');
     } catch (error) {
         console.error('Failed to connect to MongoDB:', error.message);
@@ -29,7 +32,9 @@ async function connectDB() {
 
 connectDB();
 
-app.use(express.json());
+app.use(express.json());// Middleware to parse JSON request bodies
+
+
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
