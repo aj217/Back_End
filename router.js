@@ -6,11 +6,14 @@ module.exports = (db) => {
     // Add a lesson
     router.post('/add-lesson', async (req, res) => {
         try {
-            const { id, subject, location, price, spaces, image } = req.body;
-            const lesson = { id, subject, location, price, spaces, image };
+            const { subject, location, price, spaces, image } = req.body;
+            const lesson = { subject, location, price, spaces, image };
 
             const result = await db.collection('lessons').insertOne(lesson);
-            res.status(201).json({ message: 'Lesson added successfully', lesson: result.ops[0] });
+            res.status(201).json({
+                message: 'Lesson added successfully',
+                lessonId: result.insertedId
+            });
         } catch (error) {
             res.status(400).json({ message: 'Failed to add lesson', error: error.message });
         }
@@ -33,7 +36,10 @@ module.exports = (db) => {
             const order = { name, phone, lessonIDs, number_of_spaces };
 
             const result = await db.collection('orders').insertOne(order);
-            res.status(201).json({ message: 'Order added successfully', order: result.ops[0] });
+            res.status(201).json({
+                message: 'Order added successfully',
+                orderId: result.insertedId
+            });
         } catch (error) {
             res.status(400).json({ message: 'Failed to add order', error: error.message });
         }
