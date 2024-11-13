@@ -65,6 +65,14 @@ module.exports = (db) => {
       const order = { name, phone, lessonIDs, number_of_spaces };
 
       const result = await db.collection("orders").insertOne(order);
+
+      for (const lessonId of lessonIDs) {
+        await db.collection("lessonlist").updateOne(
+          { _id: new ObjectId(lessonId) },
+          { $inc: { spaces: -number_of_spaces } }  // Decrease spaces by number_of_spaces
+        );
+      }
+      
       res.status(201).json({ message: "Order added successfully", orderId: result.insertedId });
     } catch (error) {
       res.status(400).json({ message: "Failed to add order", error: error.message });

@@ -3,7 +3,7 @@ const express = require("express");
 const { MongoClient, ObjectId } = require("mongodb");
 const apiRouter = require("./router");
 const cors = require('cors');
-
+const path = require("path");
 
 
 const app = express();
@@ -37,7 +37,8 @@ connectDB();
 
 app.use(express.json()); // Middleware to parse JSON request bodies
 
-app.use('/images', express.static('images'));
+// Serve static files from the 'images' folder
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 app.use(cors());
 
