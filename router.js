@@ -1,4 +1,5 @@
 const express = require("express");
+const { ObjectId } = require("mongodb"); // Import ObjectId
 
 module.exports = (db) => {
   const router = express.Router();
@@ -9,15 +10,14 @@ module.exports = (db) => {
       const { subject, location, price, spaces, image } = req.body;
       const lesson = { subject, location, price, spaces, image };
 
-      const result = await db.collection("lessons").insertOne(lesson);
-      res.status(201).json({
-        message: "Lesson added successfully",
-        lessonId: result.insertedId,
-      });
+      console.log("Attempting to insert lesson into 'SchoolStore.lessons':", lesson);
+      const result = await db.collection("lessonlist").insertOne(lesson);
+
+      console.log("Insertion result:", result);
+      res.status(201).json({ message: "Lesson added successfully", lessonId: result.insertedId });
     } catch (error) {
-      res
-        .status(400)
-        .json({ message: "Failed to add lesson", error: error.message });
+      console.error("Error inserting lesson:", error.message);
+      res.status(400).json({ message: "Failed to add lesson", error: error.message });
     }
   });
 
@@ -25,11 +25,11 @@ module.exports = (db) => {
   router.put("/update-lesson/:id", async (req, res) => {
     try {
       const lessonId = req.params.id;
-      const updateData = req.body; // Data to update (e.g., subject, location, price, etc.)
+      const updateData = req.body;
 
-      const result = await db.collection("lessons").updateOne(
-        { _id: new MongoClient.ObjectID(lessonId) }, // Filter by ID
-        { $set: updateData } // Update fields with new data
+      const result = await db.collection("lessonlist").updateOne(
+        { _id: new ObjectId(lessonId) },
+        { $set: updateData }
       );
 
       if (result.matchedCount === 0) {
@@ -38,21 +38,17 @@ module.exports = (db) => {
 
       res.status(200).json({ message: "Lesson updated successfully" });
     } catch (error) {
-      res
-        .status(400)
-        .json({ message: "Failed to update lesson", error: error.message });
+      res.status(400).json({ message: "Failed to update lesson", error: error.message });
     }
   });
 
   // Get all lessons
   router.get("/get-lessons", async (req, res) => {
     try {
-      const lessons = await db.collection("lessons").find().toArray();
+      const lessons = await db.collection("lessonlist").find().toArray();
       res.status(200).json(lessons);
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Failed to retrieve lessons", error: error.message });
+      res.status(500).json({ message: "Failed to retrieve lessons", error: error.message });
     }
   });
 
@@ -63,14 +59,9 @@ module.exports = (db) => {
       const order = { name, phone, lessonIDs, number_of_spaces };
 
       const result = await db.collection("orders").insertOne(order);
-      res.status(201).json({
-        message: "Order added successfully",
-        orderId: result.insertedId,
-      });
+      res.status(201).json({ message: "Order added successfully", orderId: result.insertedId });
     } catch (error) {
-      res
-        .status(400)
-        .json({ message: "Failed to add order", error: error.message });
+      res.status(400).json({ message: "Failed to add order", error: error.message });
     }
   });
 

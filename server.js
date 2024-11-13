@@ -1,9 +1,9 @@
 require("dotenv").config();
 const express = require("express");
-const { MongoClient } = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
 const apiRouter = require("./router");
 const cors = require('cors');
-app.use(cors());
+
 
 
 const app = express();
@@ -23,7 +23,7 @@ let db;
 async function connectDB() {
   try {
     await client.connect();
-    db = client.db();
+    db = client.db('SchoolStore');
     // Mount the API router after connecting to the database
     app.use("/api", apiRouter(db)); // Pass the db instance to the router here
     console.log("Connected to MongoDB");
@@ -38,6 +38,8 @@ connectDB();
 app.use(express.json()); // Middleware to parse JSON request bodies
 
 app.use('/images', express.static('images'));
+
+app.use(cors());
 
 
 app.listen(PORT, () => {
