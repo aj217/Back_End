@@ -42,11 +42,17 @@ module.exports = (db) => {
     }
   });
 
-  // Get all lessons
   router.get("/get-lessons", async (req, res) => {
     try {
       const lessons = await db.collection("lessonlist").find().toArray();
-      res.status(200).json(lessons);
+  
+      // Prepend the full server URL to the image path for each lesson
+      const updatedLessons = lessons.map(lesson => ({
+        ...lesson,
+        image: `http://localhost:5000${lesson.image}`
+      }));
+  
+      res.status(200).json(updatedLessons);
     } catch (error) {
       res.status(500).json({ message: "Failed to retrieve lessons", error: error.message });
     }
