@@ -30,10 +30,21 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
+// Logger middleware
+function logger(req, res, next) {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${req.method} ${req.url}`);
+  if (req.method !== "GET" && req.body) {
+    console.log("Request Body:", req.body);
+  }
+  next();
+}
+
+// Register the logger middleware
+app.use(logger);
+
 // Serve static files from 'frontend' folder
 app.use(express.static(path.join(__dirname, "../frontend/public/images")));
-
-
 
 // Start the server
 app.listen(PORT, () => {
