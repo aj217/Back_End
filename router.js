@@ -29,12 +29,10 @@ module.exports = (db) => {
       const lesson = { subject, location, price, spaces, image };
       const result = await db.collection("lessonlist").insertOne(lesson);
 
-      res
-        .status(201)
-        .json({
-          message: "Lesson added successfully",
-          lessonId: result.insertedId,
-        });
+      res.status(201).json({
+        message: "Lesson added successfully",
+        lessonId: result.insertedId,
+      });
     } catch (error) {
       console.error("Error adding lesson:", error.message);
       res
@@ -104,17 +102,44 @@ module.exports = (db) => {
           );
       }
 
-      res
-        .status(201)
-        .json({
-          message: "Order added successfully",
-          orderId: result.insertedId,
-        });
+      res.status(201).json({
+        message: "Order added successfully",
+        orderId: result.insertedId,
+      });
     } catch (error) {
       console.error("Error adding order:", error.message);
       res
         .status(500)
         .json({ message: "Failed to add order", error: error.message });
+    }
+  });
+
+  // Route to search for lessons
+  router.get("/search", async (req, res) => {
+    try {
+      // Get search query from the request
+      const searchQuery = req.query.q || ""; // Default to an empty string if no query provided
+
+      // Define the search criteria
+      const query = {
+        $or: [
+          { subject: { $regex: searchQuery, $options: "i" } },
+          { location: { $regex: searchQuery, $options: "i" } },
+          { price: { $regex: searchQuery, $options: "i" } },
+          { spaces: { $regex: searchQuery, $options: "i" } },
+        ],
+      };
+
+      // Perform the search in MongoDB
+      const lessons = await db.collection("lessonlist").find(query).toArray();
+
+      // Send back the filtered results
+      res.status(200).json(lessons);
+    } catch (error) {
+      console.error("Error performing search:", error.message);
+      res
+        .status(500)
+        .json({ message: "Failed to perform search", error: error.message });
     }
   });
 
