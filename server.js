@@ -30,6 +30,10 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
+// Serve static files from the 'frontend' folder and '/images' for images specifically
+app.use(express.static(path.join(__dirname, '../frontend')));
+app.use('/images', express.static(path.join(__dirname, '../frontend/public/images')));
+
 // Logger middleware
 function logger(req, res, next) {
   const timestamp = new Date().toISOString();
@@ -43,8 +47,10 @@ function logger(req, res, next) {
 // Register the logger middleware
 app.use(logger);
 
-// Serve static files from 'frontend' folder
-app.use(express.static(path.join(__dirname, "../frontend/public/images")));
+// Root route to serve the index.html file from the frontend folder
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
 
 // Start the server
 app.listen(PORT, () => {
