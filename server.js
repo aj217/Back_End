@@ -31,8 +31,11 @@ app.use(cors());
 app.use(express.json());
 
 // Serve static files from the 'frontend' folder and '/images' for images specifically
-app.use(express.static(path.join(__dirname, '../frontend')));
-app.use('/images', express.static(path.join(__dirname, '../frontend/public/images')));
+app.use(express.static(path.join(__dirname, "../frontend")));
+app.use(
+  "/images",
+  express.static(path.join(__dirname, "../frontend/public/images"))
+);
 
 // Logger middleware
 function logger(req, res, next) {
@@ -48,8 +51,8 @@ function logger(req, res, next) {
 app.use(logger);
 
 // Root route to serve the index.html file from the frontend folder
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
 
 // Start the server

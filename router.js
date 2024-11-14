@@ -17,17 +17,29 @@ module.exports = (db) => {
       const { subject, location, price, spaces, image } = req.body;
 
       // Validate incoming lesson data
-      if (!subject || !location || typeof price !== "number" || typeof spaces !== "number") {
+      if (
+        !subject ||
+        !location ||
+        typeof price !== "number" ||
+        typeof spaces !== "number"
+      ) {
         return res.status(400).json({ message: "Invalid lesson data" });
       }
 
       const lesson = { subject, location, price, spaces, image };
       const result = await db.collection("lessonlist").insertOne(lesson);
 
-      res.status(201).json({ message: "Lesson added successfully", lessonId: result.insertedId });
+      res
+        .status(201)
+        .json({
+          message: "Lesson added successfully",
+          lessonId: result.insertedId,
+        });
     } catch (error) {
       console.error("Error adding lesson:", error.message);
-      res.status(500).json({ message: "Failed to add lesson", error: error.message });
+      res
+        .status(500)
+        .json({ message: "Failed to add lesson", error: error.message });
     }
   });
 
@@ -38,7 +50,9 @@ module.exports = (db) => {
       res.status(200).json(lessons);
     } catch (error) {
       console.error("Error retrieving lessons:", error.message);
-      res.status(500).json({ message: "Failed to retrieve lessons", error: error.message });
+      res
+        .status(500)
+        .json({ message: "Failed to retrieve lessons", error: error.message });
     }
   });
 
@@ -48,10 +62,9 @@ module.exports = (db) => {
       const lessonId = req.params.id;
       const updateData = req.body;
 
-      const result = await db.collection("lessonlist").updateOne(
-        { _id: new ObjectId(lessonId) },
-        { $set: updateData }
-      );
+      const result = await db
+        .collection("lessonlist")
+        .updateOne({ _id: new ObjectId(lessonId) }, { $set: updateData });
 
       if (result.matchedCount === 0) {
         return res.status(404).json({ message: "Lesson not found" });
@@ -60,7 +73,9 @@ module.exports = (db) => {
       res.status(200).json({ message: "Lesson updated successfully" });
     } catch (error) {
       console.error("Error updating lesson:", error.message);
-      res.status(500).json({ message: "Failed to update lesson", error: error.message });
+      res
+        .status(500)
+        .json({ message: "Failed to update lesson", error: error.message });
     }
   });
 
@@ -71,7 +86,9 @@ module.exports = (db) => {
 
       // Validate order data for name and phone format
       if (!validateOrderData(name, phone)) {
-        return res.status(400).json({ message: "Invalid name or phone format" });
+        return res
+          .status(400)
+          .json({ message: "Invalid name or phone format" });
       }
 
       const order = { name, phone, lessonIDs, number_of_spaces };
@@ -79,16 +96,25 @@ module.exports = (db) => {
 
       // Adjust lesson spaces based on the order
       for (const lessonId of lessonIDs) {
-        await db.collection("lessonlist").updateOne(
-          { _id: new ObjectId(lessonId) },
-          { $inc: { spaces: -number_of_spaces } }
-        );
+        await db
+          .collection("lessonlist")
+          .updateOne(
+            { _id: new ObjectId(lessonId) },
+            { $inc: { spaces: -number_of_spaces } }
+          );
       }
 
-      res.status(201).json({ message: "Order added successfully", orderId: result.insertedId });
+      res
+        .status(201)
+        .json({
+          message: "Order added successfully",
+          orderId: result.insertedId,
+        });
     } catch (error) {
       console.error("Error adding order:", error.message);
-      res.status(500).json({ message: "Failed to add order", error: error.message });
+      res
+        .status(500)
+        .json({ message: "Failed to add order", error: error.message });
     }
   });
 
