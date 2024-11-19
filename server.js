@@ -20,7 +20,7 @@ const dbName = properties.get("db.dbName");
 
 // Construct MongoDB URI
 const MONGODB_URI = `${dbPrefix}${dbUser}:${dbPwd}${dbUrl}${dbParams}`;
-const PORT = properties.get("app.port") || 5000;
+const PORT = process.env.PORT || properties.get("app.port") || 5001;
 
 // MongoDB connection setup
 const client = new MongoClient(MONGODB_URI);
@@ -38,8 +38,6 @@ async function connectDB() {
   }
 }
 
-connectDB();
-
 const app = express();
 
 // Middleware to parse JSON bodies and handle CORS
@@ -49,9 +47,11 @@ app.use(express.json());
 // Logger middleware
 function logger(req, res, next) {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] ${req.method} ${req.url}`);
-  if (req.method !== "GET" && req.body) {
-    console.log("Request Body:", req.body);
+  if (req.url !== "/health") {
+    console.log(`[${timestamp}] ${req.method} ${req.url}`);
+    if (req.method !== "GET" && req.body) {
+      console.log("Request Body:", req.body);
+    }
   }
   next();
 }
@@ -63,29 +63,34 @@ app.use(logger);
 app.use(express.static(path.join(__dirname, "../frontend")));
 
 // Serve images with error handling for missing files
-const imagesPath = path.join(__dirname, "../frontend/public/images");
+const imagesPath = path.resolve(__dirname, "../frontend/public/images");
 
-app.use("/images", (req, res, next) => {
-  const filePath = path.join(imagesPath, req.url);
-
+app.use("/images", (req, res) => {
+  // Extract the correct image name from the request
+  const imageName = path.basename(req.url);
+  const filePath = path.join(imagesPath, imageName); // Use only the image name
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
-      // Log the missing file and send a 404 response
-      console.error(`Image not found: ${req.url}`);
+      console.error(`Image not found: ${imageName}`);
       res.status(404).send("Image not found");
     } else {
-      // Serve the requested image if it exists
       res.sendFile(filePath);
     }
   });
 });
-
 // Root route to serve the index.html file from the frontend folder
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
 
+// Health check endpoint for AWS Elastic Beanstalk
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
 // Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
 });
