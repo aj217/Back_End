@@ -79,7 +79,7 @@ app.use("/images", (req, res) => {
   });
 });
 // Root route to serve the index.html file from the backend folder
-app.get(express.static(path.join(__dirname, "static")));
+app.use(express.static(path.join(__dirname, "static")));
 
 // Health check endpoint for AWS Elastic Beanstalk
 app.get("/health", (req, res) => {
