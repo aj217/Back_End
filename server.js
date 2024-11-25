@@ -78,9 +78,9 @@ app.use("/images", (req, res) => {
     }
   });
 });
-// Root route to serve the index.html file from the frontend folder
+// Root route to serve the index.html file from the backend folder
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+  res.sendFile(path.join(__dirname, "../BackEnd/index.html"));
 });
 
 // Health check endpoint for AWS Elastic Beanstalk
