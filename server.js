@@ -19,7 +19,7 @@ const dbParams = properties.get("db.params");
 const dbName = properties.get("db.dbName");
 
 // Construct MongoDB URI
-const MONGODB_URI = `${dbPrefix}${dbUser}:${dbPwd}${dbUrl}${dbParams}`;
+const MONGODB_URI = process.env.MONGODB_URI || `${dbPrefix}${dbUser}:${dbPwd}${dbUrl}${dbParams}`;
 const PORT = process.env.PORT || properties.get("app.port") || 5001;
 
 // MongoDB connection setup
